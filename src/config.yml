@@ -1,0 +1,14 @@
+#
+#
+#
+#
+
+mySQL:
+  username: 'root'
+  password: ''
+  hostname: 'localhost'
+  port: 3306
+  database: 'SPAZIORPG'
+
+config:
+  default-lang: 'lang_us'

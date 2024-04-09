@@ -143,4 +143,12 @@ public class Tools {
         loc.getWorld().playSound(loc, sound, volumen, pitch);
     }
     
+    /*
+        Calculate Values
+    */
+    
+    public Double calcPercent (Double value, Double percent) {
+        return (value * (100 + (-(100-percent))) / 100);
+    }
+    
 }

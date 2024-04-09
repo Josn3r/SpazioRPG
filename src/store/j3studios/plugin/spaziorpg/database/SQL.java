@@ -38,7 +38,6 @@ public class SQL {
                 
         BANK_ACCOUNTS ("BANK_ACCOUNTS"),
         BANK_BONOS ("BANK_BONOS"),
-        BANK_CONFIG ("BANK_CONFIG"),
         BANK_STATS ("BANK_STATS");
         
         private final String dataType;
@@ -97,6 +96,10 @@ public class SQL {
                 case PLAYER_STATS -> st.executeUpdate("CREATE TABLE IF NOT EXISTS `" + dataType + "` (`uuid` VARCHAR(255), `username` VARCHAR(255), `level` INT NOT NULL DEFAULT '1', `exp` INT NOT NULL DEFAULT '0', `totalExp` INT NOT NULL DEFAULT '0')");
                 case PLAYER_SKILLS -> st.executeUpdate("CREATE TABLE IF NOT EXISTS `" + dataType + "` (`uuid` VARCHAR(255), `username` VARCHAR(255), `strength` INT NOT NULL DEFAULT '0', `agility` INT NOT NULL DEFAULT '0', `life` INT NOT NULL DEFAULT '0', `defense` INT NOT NULL DEFAULT '0')");
                 case PLAYER_JOBS -> st.executeUpdate("CREATE TABLE IF NOT EXISTS `" + dataType + "` (`uuid` VARCHAR(255), `username` VARCHAR(255), `job_1` VARCHAR(255), `job_2` VARCHAR(255), `jobs_level` LONGTEXT, `jobs_exp` LONGTEXT, `jobs_totalExp` LONGTEXT)");
+                //
+                case BANK_ACCOUNTS -> st.executeUpdate("CREATE TABLE IF NOT EXISTS `" + dataType + "` (`uuid` VARCHAR(255), `username` VARCHAR(255), `account` VARCHAR(255), `level` INT NOT NULL DEFAULT '1', `balance` DOUBLE NOT NULL DEFAULT '0.0', `transactions` LONGTEXT, `claimedBonos` LONGTEXT)");
+                case BANK_BONOS -> st.executeUpdate("CREATE TABLE IF NOT EXISTS `" + dataType + "` (`id` INT NOT NULL PRIMARY KEY, `name` VARCHAR(255), `stock` INT, `level` INT, `value` DOUBLE)");
+                case BANK_STATS -> st.executeUpdate("CREATE TABLE IF NOT EXISTS `" + dataType + "` (`accounts` INT NOT NULL DEFAULT '0', `totalMoney` DOUBLE NOT NULL DEFAULT '0.0', `partners` LONGTEXT)");
             }
         } finally {
             try {
