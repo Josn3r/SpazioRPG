@@ -1,0 +1,7 @@
+name: SpazioRPG
+main: store.j3studios.plugin.spaziorpg.RPG
+version: 0.0-8.04.24
+author: Josn3r
+softdepend: [Vault,PlaceholderAPI,WorldGuard]
+loadBefore: [Vault,PlaceholderAPI,WorldGuard]
+api-version: 1.16
