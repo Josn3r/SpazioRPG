@@ -18,7 +18,7 @@ public class Level {
     //
     
     public Integer getNeededExp (Player player) {
-        Integer playerLevel = (Integer) SQL.get().getPlayer(player, SQL.DataType.PLAYER_STATS, SQL.UpdateType.PLAYER_STATS_LEVEL);
+        Integer playerLevel = (Integer)SQL.get().getPlayer(player, SQL.DataType.PLAYER_STATS, SQL.UpdateType.PLAYER_STATS_LEVEL);
         return playerLevel * 750;
     }
     

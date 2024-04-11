@@ -1,0 +1,14 @@
+- Sistema de niveles basado en juegos RPG; Nivel, Experiencia y Experiencia Total.
+
+- Sistema de habilidades basado en juegos RPG.
+    - Menú con estadisticas de las habilidades.
+    - Calculo de "Fuerza & Agilidad" aumentarán el maná del jugador.
+    - Calculo de "Vida y Defensa" aumentarán la vida del jugador.
+    - El maná y la vida inicial será configurable.
+    - El máximo de cada skill será configurable.
+    - El aumento de ambas estadísticas dependiendo de nivel de skills será configurable.
+    
+    - CALCULO:
+        - Se podría calcular que cada +1 de Skill pueda aumentar un #DOUBLE al maná, estilo
+            - Cada +1 de Agilidad aumente un 0.25D al maná, haciendo que si la agilidad llega a 100 pts
+              el maná aumentaría un +25.0

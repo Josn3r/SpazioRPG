@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>store.j3studios.plugin</groupId>
     <artifactId>SpazioRPG</artifactId>
-    <version>0.1-8.04.24</version>
+    <version>lastest</version>
     <packaging>jar</packaging>
     <repositories>
         <repository>

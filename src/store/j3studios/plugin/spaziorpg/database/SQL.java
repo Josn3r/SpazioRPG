@@ -14,11 +14,11 @@ public class SQL {
     private static SQL ins;
     private Connection con;
     
-    private final String username = "";
-    private final String password = "";
-    private final String hostname = "";
-    private final Integer port = 3306;
-    private final String database = "";
+    private final String username = RPG.get().getConfig().getString("mySQL.username");
+    private final String password = RPG.get().getConfig().getString("mySQL.password");
+    private final String hostname = RPG.get().getConfig().getString("mySQL.hostname");
+    private final Integer port = RPG.get().getConfig().getInt("mySQL.port");
+    private final String database = RPG.get().getConfig().getString("mySQL.database");
     
     public static SQL get() {
         if (ins == null) {
@@ -76,11 +76,12 @@ public class SQL {
         RPG.get().getServer().getScheduler().runTaskTimerAsynchronously(RPG.get(), () -> {
             Connection con1 = SQL.get().getConnection();
             try {
-                PreparedStatement keepAlive = con1.prepareStatement("SELECT 1 FROM ``");
+                PreparedStatement keepAlive = con1.prepareStatement("SELECT 1 FROM `" + DataType.PLAYER_STATS.getDataType() + "`");
                 keepAlive.executeQuery();
             }catch (SQLException e) {
                 e.printStackTrace();
             }
+            
         }, 0, 600);
     }
 
@@ -96,7 +97,7 @@ public class SQL {
         try {            
             switch (type) {
                 case PLAYER_STATS -> st.executeUpdate("CREATE TABLE IF NOT EXISTS `" + dataType + "` (`uuid` VARCHAR(255), `username` VARCHAR(255), `level` INT NOT NULL DEFAULT '1', `exp` INT NOT NULL DEFAULT '0', `totalExp` INT NOT NULL DEFAULT '0')");
-                case PLAYER_SKILLS -> st.executeUpdate("CREATE TABLE IF NOT EXISTS `" + dataType + "` (`uuid` VARCHAR(255), `username` VARCHAR(255), `strength` INT NOT NULL DEFAULT '0', `agility` INT NOT NULL DEFAULT '0', `life` INT NOT NULL DEFAULT '0', `defense` INT NOT NULL DEFAULT '0')");
+                case PLAYER_SKILLS -> st.executeUpdate("CREATE TABLE IF NOT EXISTS `" + dataType + "` (`uuid` VARCHAR(255), `username` VARCHAR(255), `last_life` DOUBLE NOT NULL DEFAULT '10.0', `last_mana` DOUBLE NOT NULL DEFAULT '10.0', `strength` INT NOT NULL DEFAULT '0', `agility` INT NOT NULL DEFAULT '0', `life` INT NOT NULL DEFAULT '0', `defense` INT NOT NULL DEFAULT '0')");
                 case PLAYER_JOBS -> st.executeUpdate("CREATE TABLE IF NOT EXISTS `" + dataType + "` (`uuid` VARCHAR(255), `username` VARCHAR(255), `job_1` VARCHAR(255), `job_2` VARCHAR(255), `jobs_level` LONGTEXT, `jobs_exp` LONGTEXT, `jobs_totalExp` LONGTEXT)");
                 case PLAYER_BANK -> st.executeUpdate("CREATE TABLE IF NOT EXISTS `" + dataType + "` (`uuid` VARCHAR(255), `username` VARCHAR(255), `account` VARCHAR(255), `level` INT NOT NULL DEFAULT '1', `balance` DOUBLE NOT NULL DEFAULT '0.0', `transactions` LONGTEXT, `claimedBonos` LONGTEXT)");
                 //
@@ -124,16 +125,36 @@ public class SQL {
         PLAYER_STATS_EXP ("exp"),
         PLAYER_STATS_TOTAL_EXP ("totalExp"),
         
-        PLAYER_SKILLS ("PLAYER_SKILLS"),
-        PLAYER_JOBS ("PLAYER_JOBS"),
+        PLAYER_SKILLS_USERNAME ("username"),
+        PLAYER_SKILLS_LAST_LIFE ("last_life"),
+        PLAYER_SKILLS_LAST_MANA ("last_mana"),
+        PLAYER_SKILLS_STRENGTH ("strength"),
+        PLAYER_SKILLS_AGILITY ("agility"),
+        PLAYER_SKILLS_LIFE ("life"),
+        PLAYER_SKILLS_DEFENSE ("defense"),
+        
+        PLAYER_JOBS_USERNAME ("username"),
+        PLAYER_JOBS_JOB1 ("job_1"),
+        PLAYER_JOBS_JOB2 ("job_2"),
+        PLAYER_JOBS_LEVELS ("jobs_level"),
+        PLAYER_JOBS_EXPS ("jobs_exp"),
+        PLAYER_JOBS_TOTAL_EXPS ("jobs_totalExp"),
+        
+        PLAYER_BANK_USERNAME ("username"),
+        PLAYER_BANK_ACCOUNT ("account"),
+        PLAYER_BANK_LEVEL ("level"),
+        PLAYER_BANK_BALANCE ("balance"),
+        PLAYER_BANK_TRANSACTIONS ("transactions"),
+        PLAYER_BANK_CLAIMED_BONOS ("claimedBonos"),
+        
         
         CLAN_STATS ("CLAN_STATS"),
                 
-        BANK_ACCOUNTS ("BANK_ACCOUNTS"),
         BANK_BONOS ("BANK_BONOS"),
         BANK_STATS ("BANK_STATS");
         
         private final String dataType;
+        
         private UpdateType (String str) { this.dataType = str; }
         public String getUpdateType() {
             return this.dataType;
@@ -163,13 +184,15 @@ public class SQL {
                             st2.close();
                         }
                     case PLAYER_SKILLS ->                         {
-                            PreparedStatement st2 = SQL.get().getConnection().prepareStatement("INSERT INTO `" + dataType.getDataType() + "` VALUES (?, ?, ?, ?, ?, ?)");
+                            PreparedStatement st2 = SQL.get().getConnection().prepareStatement("INSERT INTO `" + dataType.getDataType() + "` VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
                             st2.setString(1, player.getUniqueId().toString());
                             st2.setString(2, player.getName());
-                            st2.setInt(3, 0);
-                            st2.setInt(4, 0);
+                            st2.setDouble(3, 10.0);
+                            st2.setDouble(4, 10.0);
                             st2.setInt(5, 0);
                             st2.setInt(6, 0);
+                            st2.setInt(7, 0);
+                            st2.setInt(8, 0);
                             st2.executeUpdate();
                             st2.close();
                         }
@@ -236,15 +259,18 @@ public class SQL {
         Object value = null;
         try {
             assert (SQL.get().getConnection() != null);
-            PreparedStatement st = SQL.get().getConnection().prepareStatement("");
+            PreparedStatement st = SQL.get().getConnection().prepareStatement("SELECT `" + updateType.getUpdateType() + "` FROM `" + dataType.getDataType() + "` WHERE `uuid` = ?;");
             st.setString(1, player.getUniqueId().toString());
             st.executeQuery();
             ResultSet rs = st.getResultSet();
-            value = rs.next() ? rs.getObject(updateType.getUpdateType()) : null;
+            if (!rs.next()) {
+                createPlayer(player, dataType);
+            }
+            value = rs.getObject(updateType.getUpdateType());
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return null;
+        return value;
     }
 
 }

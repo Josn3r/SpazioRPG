@@ -12,3 +12,16 @@ mySQL:
 
 config:
   default-lang: 'lang_us'
+  statistics:
+    started-stats:
+      mana: 20.0
+      life: 20.0
+    max-skill:
+      strength: 100
+      agility: 100
+      life: 100
+      defense: 100
+    increase-per-skill:
+      mana: 0.80
+      life: 0.80
+    
