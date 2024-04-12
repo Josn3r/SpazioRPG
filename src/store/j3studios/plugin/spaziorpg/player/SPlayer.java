@@ -23,6 +23,10 @@ public class SPlayer {
     // Menu controller
     private Boolean openMenu = false;
     
+    // Mana / Life
+    private Double mana = 20.0;
+    private Double life = 20.0;
+    
     public SPlayer (UUID uuid) {
         this.uuid = uuid;
         this.player = Bukkit.getPlayer(uuid);
@@ -83,5 +87,20 @@ public class SPlayer {
         }
     }
     
+    public void setMana(Double mana) {
+        this.mana = mana;
+    }
+    
+    public Double getMana() {
+        return mana;
+    }
+    
+    public void setLife (Double life) {
+        this.life = life;
+    }
+    
+    public Double getLife() {
+        return life;
+    }
     
 }
