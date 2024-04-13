@@ -49,4 +49,5 @@ public class Level {
         Tools.get().playSound(player, Sound.ENTITY_PLAYER_LEVELUP, 5.0f, 1.0f);
     }
     
+    
 }

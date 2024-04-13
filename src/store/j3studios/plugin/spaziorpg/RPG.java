@@ -43,7 +43,7 @@ public class RPG extends JavaPlugin {
                SPlayer sp = PlayerManager.get().getPlayer(online.getUniqueId());
                sp.updateBossbar();
                
-               Tools.get().sendActionBar(online, "&bManá: &f" + Skills.get().getStats(online, Skills.StatsType.MANA) + "     &7|     &cVida: &f" + Skills.get().getStats(online, Skills.StatsType.LIFE));
+               Tools.get().sendActionBar(online, "&bManï¿½: &f" + Skills.get().getStats(online, Skills.StatsType.MANA) + "     &7|     &cVida: &f" + Skills.get().getStats(online, Skills.StatsType.LIFE));
            } 
         }, 0, 20);
     }
@@ -64,5 +64,6 @@ public class RPG extends JavaPlugin {
         String listenerName = listener.getClass().getName().replace("store.j3studios.plugin.spaziorpg.listeners.", "");
         Tools.debug(Tools.DebugType.SUCCESS, "&fRegistering &e" + listenerName + " &flistener success.");
     }
+    
     
 }
