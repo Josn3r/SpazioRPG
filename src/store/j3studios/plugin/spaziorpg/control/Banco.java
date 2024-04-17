@@ -7,7 +7,10 @@ import java.util.Base64;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import store.j3studios.plugin.spaziorpg.database.SQL;
 import store.j3studios.plugin.spaziorpg.utils.Tools;
 
 public class Banco {
@@ -54,8 +57,8 @@ public class Banco {
         PAYDAY;
     }
     
-    public void createTransaction (Player player, TransactionType type, Double value, String transferAccount) {
-        byte[] transList64 = Base64.getDecoder().decode("");
+    public void createTransaction (String uuid, TransactionType type, Double value, String transferAccount) {
+        byte[] transList64 = Base64.getDecoder().decode(SQL.get().getPlayer(SQL.DataType.PLAYER_BANK, SQL.UpdateType.PLAYER_BANK_TRANSACTIONS, SQL.UpdateType.PLAYER_STATS_UUID, uuid).toString());
         String transListArray = new String(transList64);
         ArrayList<String> transList = new ArrayList<>();
         if (transListArray.contains(" /// ")) {
@@ -69,36 +72,42 @@ public class Banco {
                 Double balance = 0.0D;
                 Double total = balance + (value-calcComision);
                 // save
+                SQL.get().updatePlayer(SQL.DataType.PLAYER_BANK, SQL.UpdateType.PLAYER_BANK_BALANCE, total, uuid);
                 text = value + " : " + type.toString() + " : " + timeStamp;                
             }
             case WITHDRAW -> {
                 Double balance = 0.0D;
                 Double total = balance - value;
                 // save
+                SQL.get().updatePlayer(SQL.DataType.PLAYER_BANK, SQL.UpdateType.PLAYER_BANK_BALANCE, total, uuid);
                 text = value + " : " + type.toString() + " : " + timeStamp; 
             }
             case TRANSFER_POSITIVE -> {
                 Double balance = 0.0D;
-                Double total = balance - value;
+                Double total = balance + value;
                 // save
+                SQL.get().updatePlayer(SQL.DataType.PLAYER_BANK, SQL.UpdateType.PLAYER_BANK_BALANCE, total, uuid);
                 text = value + " : " + type.toString() + " : " + transferAccount + " : " + timeStamp; 
             }
             case TRANSFER_NEGATIVE -> {
                 Double balance = 0.0D;
                 Double total = balance - value;
                 // save
+                SQL.get().updatePlayer(SQL.DataType.PLAYER_BANK, SQL.UpdateType.PLAYER_BANK_BALANCE, total, uuid);
                 text = value + " : " + type.toString() + " : " + transferAccount + " : " + timeStamp; 
             }
             case BONO -> {
                 Double balance = 0.0D;
-                Double total = balance - value;
+                Double total = balance + value;
                 // save
+                SQL.get().updatePlayer(SQL.DataType.PLAYER_BANK, SQL.UpdateType.PLAYER_BANK_BALANCE, total, uuid);
                 text = value + " : " + type.toString() + " : " + timeStamp; 
             }
             case PAYDAY -> {
                 Double balance = 0.0D;
-                Double total = balance - value;
+                Double total = balance + value;
                 // save
+                SQL.get().updatePlayer(SQL.DataType.PLAYER_BANK, SQL.UpdateType.PLAYER_BANK_BALANCE, total, uuid);
                 text = value + " : " + type.toString() + " : " + timeStamp; 
             }
         }        
@@ -114,11 +123,12 @@ public class Banco {
             transactions = transactions.substring(0, transactions.length()-5);
         }
         String transactions64 = Base64.getEncoder().encodeToString(transactions.getBytes());
+        SQL.get().updatePlayer(SQL.DataType.PLAYER_BANK, SQL.UpdateType.PLAYER_BANK_TRANSACTIONS, transactions64, uuid);
         // save transactions64.
     }
     
     public ArrayList<String> getAccountTransactions (Player player) {
-        byte[] transList64 = Base64.getDecoder().decode("");
+        byte[] transList64 = Base64.getDecoder().decode(SQL.get().getPlayer(SQL.DataType.PLAYER_BANK, SQL.UpdateType.PLAYER_BANK_TRANSACTIONS, SQL.UpdateType.PLAYER_STATS_UUID, player.getUniqueId().toString()).toString());
         String transListArray = new String(transList64);
         ArrayList<String> transList = new ArrayList<>();
         if (transListArray.contains(" /// ")) {
@@ -132,7 +142,7 @@ public class Banco {
                 TransactionType type = TransactionType.valueOf(str[1]);                
                 if (null != type) switch (type) {
                     case DEPOSIT -> {
-                        lista.add("&7[&a&l+&7] Depósito - &6&l$&e" + Tools.get().decimalFormat(Double.valueOf(str[0]), "###,###,###,###.##") + " &7- " + str[2]);
+                        lista.add("&7[&a&l+&7] Deposito - &6&l$&e" + Tools.get().decimalFormat(Double.valueOf(str[0]), "###,###,###,###.##") + " &7- " + str[2]);
                     }
                     case WITHDRAW -> {
                         lista.add("&7[&c&l-&7] Retiro - &6&l$&e" + Tools.get().decimalFormat(Double.valueOf(str[0]), "###,###,###,###.##") + " &7- " + str[2]);
@@ -152,9 +162,27 @@ public class Banco {
                 }
             }
         } else {
-            lista.add("&7- Ningún movimiento...");
+            lista.add("&7- Ningun movimiento...");
         }
         return lista;
+    }
+    
+    public boolean createTransferencia (Player player, String transferAccount, Double value) {
+        String playerAccount = SQL.get().getPlayer(SQL.DataType.PLAYER_BANK, SQL.UpdateType.PLAYER_BANK_ACCOUNT, SQL.UpdateType.PLAYER_BANK_UUID, player.getUniqueId().toString()).toString();
+        String transferUUID = SQL.get().getPlayer(SQL.DataType.PLAYER_BANK, SQL.UpdateType.PLAYER_BANK_UUID, SQL.UpdateType.PLAYER_BANK_ACCOUNT, transferAccount).toString();
+        if (transferUUID == null) {
+            return false;
+        }
+        
+        Player transfPlayer = Bukkit.getPlayer(UUID.fromString(transferUUID));
+        if (transfPlayer == null) {
+            return false;
+        }
+                
+        createTransaction(player.getUniqueId().toString(), TransactionType.TRANSFER_NEGATIVE, value, transferAccount);        
+        createTransaction(transferUUID, TransactionType.TRANSFER_POSITIVE, value, playerAccount);
+        
+        return true;
     }
     
 }

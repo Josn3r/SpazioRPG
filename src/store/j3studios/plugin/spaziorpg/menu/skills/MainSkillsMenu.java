@@ -8,8 +8,7 @@ public class MainSkillsMenu extends Menu {
 
     public MainSkillsMenu(Player player) {
         super("Habilidades", 4);
-        
-        
+                
     }
 
     @Override

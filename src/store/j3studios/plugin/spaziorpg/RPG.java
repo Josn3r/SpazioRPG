@@ -4,7 +4,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
-import store.j3studios.plugin.spaziorpg.control.Skills;
 import store.j3studios.plugin.spaziorpg.database.SQL;
 import store.j3studios.plugin.spaziorpg.listeners.PlayerListener;
 import store.j3studios.plugin.spaziorpg.player.PlayerManager;
@@ -35,22 +34,24 @@ public class RPG extends JavaPlugin {
         registerEvent(new PlayerListener());
         
         // Loading runnables
-        getServer().getScheduler().runTaskTimerAsynchronously(RPG.get(), () -> {
-           for (Player online : Bukkit.getOnlinePlayers()) {
-               if (!PlayerManager.get().isPlayerExists(online.getUniqueId())) {
-                   PlayerManager.get().createPlayer(online);
-               }
-               SPlayer sp = PlayerManager.get().getPlayer(online.getUniqueId());
-               sp.updateBossbar();
-               
-               Tools.get().sendActionBar(online, "&bMan�: &f" + Skills.get().getStats(online, Skills.StatsType.MANA) + "     &7|     &cVida: &f" + Skills.get().getStats(online, Skills.StatsType.LIFE));
-           } 
-        }, 0, 20);
+        for (Player online : Bukkit.getOnlinePlayers()) {
+            if (!PlayerManager.get().isPlayerExists(online.getUniqueId())) {
+                PlayerManager.get().createPlayer(online);
+            }
+            SPlayer sp = PlayerManager.get().getPlayer(online.getUniqueId());
+            sp.createBossbar();
+        }
     }
     
     @Override
     public void onDisable() {
-        
+        for (Player online : Bukkit.getOnlinePlayers()) {
+            if (PlayerManager.get().isPlayerExists(online.getUniqueId())) {
+                SPlayer sp = PlayerManager.get().getPlayer(online.getUniqueId());
+                sp.removeBossbar();
+            }
+            PlayerManager.get().removePlayer(online);
+        }
     }
     
     //
