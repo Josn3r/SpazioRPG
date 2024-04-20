@@ -54,8 +54,8 @@ public class SPlayer {
     }
     
     public void createBossbar() {
-        Integer level = (Integer) SQL.get().getPlayer(SQL.DataType.PLAYER_STATS, SQL.UpdateType.PLAYER_STATS_LEVEL, SQL.UpdateType.PLAYER_STATS_UUID, uuid.toString());
-        Integer exp = (Integer) SQL.get().getPlayer(SQL.DataType.PLAYER_STATS, SQL.UpdateType.PLAYER_STATS_EXP, SQL.UpdateType.PLAYER_STATS_UUID, uuid.toString());
+        Integer level = (Integer) SQL.get().getData(SQL.DataType.PLAYER_STATS, SQL.UpdateType.PLAYER_STATS_LEVEL, "uuid", uuid.toString());
+        Integer exp = (Integer) SQL.get().getData(SQL.DataType.PLAYER_STATS, SQL.UpdateType.PLAYER_STATS_EXP, "uuid", uuid.toString());
         Integer needExp = Level.get().getNeededExp(player);
         
         bossBar.setColor(BarColor.YELLOW);
@@ -72,8 +72,8 @@ public class SPlayer {
             createBossbar();
             return;
         }
-        Integer level = (Integer) SQL.get().getPlayer(SQL.DataType.PLAYER_STATS, SQL.UpdateType.PLAYER_STATS_LEVEL, SQL.UpdateType.PLAYER_STATS_UUID, uuid.toString());
-        Integer exp = (Integer) SQL.get().getPlayer(SQL.DataType.PLAYER_STATS, SQL.UpdateType.PLAYER_STATS_EXP, SQL.UpdateType.PLAYER_STATS_UUID, uuid.toString());
+        Integer level = (Integer) SQL.get().getData(SQL.DataType.PLAYER_STATS, SQL.UpdateType.PLAYER_STATS_LEVEL, "uuid", uuid.toString());
+        Integer exp = (Integer) SQL.get().getData(SQL.DataType.PLAYER_STATS, SQL.UpdateType.PLAYER_STATS_EXP, "uuid", uuid.toString());
         Integer needExp = Level.get().getNeededExp(player);
         bossBar.setTitle(Tools.Text("&fNivel: &e" + level + " &7- &fExp: &e" + exp + "&7/" + needExp));        
     }

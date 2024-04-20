@@ -58,7 +58,7 @@ public class Banco {
     }
     
     public void createTransaction (String uuid, TransactionType type, Double value, String transferAccount) {
-        byte[] transList64 = Base64.getDecoder().decode(SQL.get().getPlayer(SQL.DataType.PLAYER_BANK, SQL.UpdateType.PLAYER_BANK_TRANSACTIONS, SQL.UpdateType.PLAYER_STATS_UUID, uuid).toString());
+        byte[] transList64 = Base64.getDecoder().decode(SQL.get().getData(SQL.DataType.PLAYER_BANK, SQL.UpdateType.PLAYER_BANK_TRANSACTIONS, "uuid", uuid).toString());
         String transListArray = new String(transList64);
         ArrayList<String> transList = new ArrayList<>();
         if (transListArray.contains(" /// ")) {
@@ -72,42 +72,42 @@ public class Banco {
                 Double balance = 0.0D;
                 Double total = balance + (value-calcComision);
                 // save
-                SQL.get().updatePlayer(SQL.DataType.PLAYER_BANK, SQL.UpdateType.PLAYER_BANK_BALANCE, total, uuid);
+                SQL.get().updateData(SQL.DataType.PLAYER_BANK, SQL.UpdateType.PLAYER_BANK_BALANCE, "uuid", uuid, total);
                 text = value + " : " + type.toString() + " : " + timeStamp;                
             }
             case WITHDRAW -> {
                 Double balance = 0.0D;
                 Double total = balance - value;
                 // save
-                SQL.get().updatePlayer(SQL.DataType.PLAYER_BANK, SQL.UpdateType.PLAYER_BANK_BALANCE, total, uuid);
+                SQL.get().updateData(SQL.DataType.PLAYER_BANK, SQL.UpdateType.PLAYER_BANK_BALANCE, "uuid", uuid, total);
                 text = value + " : " + type.toString() + " : " + timeStamp; 
             }
             case TRANSFER_POSITIVE -> {
                 Double balance = 0.0D;
                 Double total = balance + value;
                 // save
-                SQL.get().updatePlayer(SQL.DataType.PLAYER_BANK, SQL.UpdateType.PLAYER_BANK_BALANCE, total, uuid);
+                SQL.get().updateData(SQL.DataType.PLAYER_BANK, SQL.UpdateType.PLAYER_BANK_BALANCE, "uuid", uuid, total);
                 text = value + " : " + type.toString() + " : " + transferAccount + " : " + timeStamp; 
             }
             case TRANSFER_NEGATIVE -> {
                 Double balance = 0.0D;
                 Double total = balance - value;
                 // save
-                SQL.get().updatePlayer(SQL.DataType.PLAYER_BANK, SQL.UpdateType.PLAYER_BANK_BALANCE, total, uuid);
+                SQL.get().updateData(SQL.DataType.PLAYER_BANK, SQL.UpdateType.PLAYER_BANK_BALANCE, "uuid", uuid, total);
                 text = value + " : " + type.toString() + " : " + transferAccount + " : " + timeStamp; 
             }
             case BONO -> {
                 Double balance = 0.0D;
                 Double total = balance + value;
                 // save
-                SQL.get().updatePlayer(SQL.DataType.PLAYER_BANK, SQL.UpdateType.PLAYER_BANK_BALANCE, total, uuid);
+                SQL.get().updateData(SQL.DataType.PLAYER_BANK, SQL.UpdateType.PLAYER_BANK_BALANCE, "uuid", uuid, total);
                 text = value + " : " + type.toString() + " : " + timeStamp; 
             }
             case PAYDAY -> {
                 Double balance = 0.0D;
                 Double total = balance + value;
                 // save
-                SQL.get().updatePlayer(SQL.DataType.PLAYER_BANK, SQL.UpdateType.PLAYER_BANK_BALANCE, total, uuid);
+                SQL.get().updateData(SQL.DataType.PLAYER_BANK, SQL.UpdateType.PLAYER_BANK_BALANCE, "uuid", uuid, total);
                 text = value + " : " + type.toString() + " : " + timeStamp; 
             }
         }        
@@ -123,12 +123,12 @@ public class Banco {
             transactions = transactions.substring(0, transactions.length()-5);
         }
         String transactions64 = Base64.getEncoder().encodeToString(transactions.getBytes());
-        SQL.get().updatePlayer(SQL.DataType.PLAYER_BANK, SQL.UpdateType.PLAYER_BANK_TRANSACTIONS, transactions64, uuid);
-        // save transactions64.
+        SQL.get().updateData(SQL.DataType.PLAYER_BANK, SQL.UpdateType.PLAYER_BANK_TRANSACTIONS, "uuid", uuid, transactions64);
+                // save transactions64.
     }
     
     public ArrayList<String> getAccountTransactions (Player player) {
-        byte[] transList64 = Base64.getDecoder().decode(SQL.get().getPlayer(SQL.DataType.PLAYER_BANK, SQL.UpdateType.PLAYER_BANK_TRANSACTIONS, SQL.UpdateType.PLAYER_STATS_UUID, player.getUniqueId().toString()).toString());
+        byte[] transList64 = Base64.getDecoder().decode(SQL.get().getData(SQL.DataType.PLAYER_BANK, SQL.UpdateType.PLAYER_BANK_TRANSACTIONS, "uuid", player.getUniqueId().toString()).toString());
         String transListArray = new String(transList64);
         ArrayList<String> transList = new ArrayList<>();
         if (transListArray.contains(" /// ")) {
@@ -168,8 +168,8 @@ public class Banco {
     }
     
     public boolean createTransferencia (Player player, String transferAccount, Double value) {
-        String playerAccount = SQL.get().getPlayer(SQL.DataType.PLAYER_BANK, SQL.UpdateType.PLAYER_BANK_ACCOUNT, SQL.UpdateType.PLAYER_BANK_UUID, player.getUniqueId().toString()).toString();
-        String transferUUID = SQL.get().getPlayer(SQL.DataType.PLAYER_BANK, SQL.UpdateType.PLAYER_BANK_UUID, SQL.UpdateType.PLAYER_BANK_ACCOUNT, transferAccount).toString();
+        String playerAccount = SQL.get().getData(SQL.DataType.PLAYER_BANK, SQL.UpdateType.PLAYER_BANK_ACCOUNT, "uuid", player.getUniqueId().toString()).toString();
+        String transferUUID = SQL.get().getData(SQL.DataType.PLAYER_BANK, SQL.UpdateType.PLAYER_BANK_UUID, "account", transferAccount).toString();
         if (transferUUID == null) {
             return false;
         }
@@ -181,8 +181,30 @@ public class Banco {
                 
         createTransaction(player.getUniqueId().toString(), TransactionType.TRANSFER_NEGATIVE, value, transferAccount);        
         createTransaction(transferUUID, TransactionType.TRANSFER_POSITIVE, value, playerAccount);
-        
         return true;
+    }
+    
+    public void giveBankInterest() {
+        
+    }
+    
+    /*
+        SISTEMA DE BONOS
+    */
+    
+    public void createBono() {
+        
+    }
+        
+    /*
+        SISTEMA DE GOLDS
+        - Se encargará de definir el precio del gold basado en la oferta y demanda existente.
+        - Los golds se podrán canjear por items de alto valor, así como también por monedas "sCoins".
+        - El valor del exchange de Golds -> sCoins será de 20 Golds x 1 sCoins.
+    */
+    
+    public void calculateGoldPrice() {
+        
     }
     
 }

@@ -215,19 +215,21 @@ public class SQL {
         }
     }
     
-    public void updatePlayer (DataType dataType, UpdateType updateType, Object value, String uuid) {
+    public void updateData (DataType dataType, UpdateType updateType, String where, String sql, Object value) {
         RPG.get().getServer().getScheduler().runTaskAsynchronously(RPG.get(), () -> {
             try {
-                PreparedStatement st = SQL.get().getConnection().prepareStatement("SELECT * FROM `" + dataType.getDataType() + "` WHERE `uuid` = ? LIMIT 1;");
-                st.setString(1, uuid);
+                PreparedStatement st = SQL.get().getConnection().prepareStatement("SELECT * FROM `" + dataType.getDataType() + "` WHERE `" + where + "` = ? LIMIT 1;");
+                st.setString(1, sql);
                 st.executeQuery();
                 ResultSet rs = st.getResultSet();
                 if (!rs.next()) {
-                    createPlayer(dataType, uuid);
+                    if (sql.length()>30) {
+                        createPlayer(dataType, sql);
+                    }
                 } else {
-                    PreparedStatement st2 = SQL.get().getConnection().prepareStatement("UPDATE `" + dataType.getDataType() + "` SET `" + updateType.getUpdateType() + "` = ? WHERE `�uid` = ? LIMIT 1;");
+                    PreparedStatement st2 = SQL.get().getConnection().prepareStatement("UPDATE `" + dataType.getDataType() + "` SET `" + updateType.getUpdateType() + "` = ? WHERE `" + where + "` = ? LIMIT 1;");
                     st2.setObject(1, value);
-                    st2.setString(2, uuid);
+                    st2.setString(2, sql);
                     st2.executeUpdate();
                     st2.close();
                 }
@@ -239,19 +241,14 @@ public class SQL {
         });  
     }
     
-    public Object getPlayer (DataType dataType, UpdateType updateType, UpdateType where, String whereValue) {
+    public Object getData (DataType dataType, UpdateType updateType, String where, String sql) {
         Object value = null;
         try {
             assert (SQL.get().getConnection() != null);
-            PreparedStatement st = SQL.get().getConnection().prepareStatement("SELECT `" + updateType.getUpdateType() + "` FROM `" + dataType.getDataType() + "` WHERE `" + where.getUpdateType() + "` = ?;");
-            st.setString(1, whereValue);
+            PreparedStatement st = SQL.get().getConnection().prepareStatement("SELECT `" + updateType.getUpdateType() + "` FROM `" + dataType.getDataType() + "` WHERE `" + where + "` = ?;");
+            st.setString(1, sql);
             st.executeQuery();
             ResultSet rs = st.getResultSet();
-            if (!rs.next()) {
-                if (whereValue.length()>30) {
-                    createPlayer(dataType, whereValue);
-                }                
-            }
             value = rs.getObject(updateType.getUpdateType());
         } catch (SQLException e) {
             e.printStackTrace();

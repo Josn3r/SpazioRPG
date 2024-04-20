@@ -20,24 +20,24 @@ public class Level {
     //
     
     public Integer getNeededExp (Player player) {
-        Integer playerLevel = (Integer)SQL.get().getPlayer(SQL.DataType.PLAYER_STATS, SQL.UpdateType.PLAYER_STATS_LEVEL, SQL.UpdateType.PLAYER_STATS_UUID, player.getUniqueId().toString());
+        Integer playerLevel = (Integer)SQL.get().getData(SQL.DataType.PLAYER_STATS, SQL.UpdateType.PLAYER_STATS_LEVEL, "uuid", player.getUniqueId().toString());
         return playerLevel * 750;
     }
     
     public void giveExp (Player player, Integer experience) {
         SPlayer sp = PlayerManager.get().getPlayer(player.getUniqueId());
-        Integer playerLevel = (Integer) SQL.get().getPlayer(SQL.DataType.PLAYER_STATS, SQL.UpdateType.PLAYER_STATS_LEVEL, SQL.UpdateType.PLAYER_STATS_UUID, player.getUniqueId().toString());
-        Integer playerExp = (Integer) SQL.get().getPlayer(SQL.DataType.PLAYER_STATS, SQL.UpdateType.PLAYER_STATS_EXP, SQL.UpdateType.PLAYER_STATS_UUID, player.getUniqueId().toString());
-        Integer playerTotalExp = (Integer) SQL.get().getPlayer(SQL.DataType.PLAYER_STATS, SQL.UpdateType.PLAYER_STATS_TOTAL_EXP, SQL.UpdateType.PLAYER_STATS_UUID, player.getUniqueId().toString());
+        Integer playerLevel = (Integer)SQL.get().getData(SQL.DataType.PLAYER_STATS, SQL.UpdateType.PLAYER_STATS_LEVEL, "uuid", player.getUniqueId().toString());
+        Integer playerExp = (Integer)SQL.get().getData(SQL.DataType.PLAYER_STATS, SQL.UpdateType.PLAYER_STATS_EXP, "uuid", player.getUniqueId().toString());
+        Integer playerTotalExp = (Integer)SQL.get().getData(SQL.DataType.PLAYER_STATS, SQL.UpdateType.PLAYER_STATS_TOTAL_EXP, "uuid", player.getUniqueId().toString());
         Integer maxExp = playerLevel * 750;        
         if ((playerExp+experience) < maxExp) {
-            SQL.get().updatePlayer(SQL.DataType.PLAYER_STATS, SQL.UpdateType.PLAYER_STATS_EXP, playerExp+experience, player.getUniqueId().toString());
-            SQL.get().updatePlayer(SQL.DataType.PLAYER_STATS, SQL.UpdateType.PLAYER_STATS_TOTAL_EXP, playerTotalExp+experience, player.getUniqueId().toString());
+            SQL.get().updateData(SQL.DataType.PLAYER_STATS, SQL.UpdateType.PLAYER_STATS_EXP, "uuid", player.getUniqueId().toString(), playerExp+experience);
+            SQL.get().updateData(SQL.DataType.PLAYER_STATS, SQL.UpdateType.PLAYER_STATS_TOTAL_EXP, "uuid", player.getUniqueId().toString(), playerTotalExp+experience);
         } else {
             Integer sobrante = (playerExp+experience)-maxExp;
             Integer giving = experience-sobrante;
-            SQL.get().updatePlayer(SQL.DataType.PLAYER_STATS, SQL.UpdateType.PLAYER_STATS_EXP, playerExp+giving, player.getUniqueId().toString());
-            SQL.get().updatePlayer(SQL.DataType.PLAYER_STATS, SQL.UpdateType.PLAYER_STATS_TOTAL_EXP, playerTotalExp+giving, player.getUniqueId().toString());
+            SQL.get().updateData(SQL.DataType.PLAYER_STATS, SQL.UpdateType.PLAYER_STATS_EXP, "uuid", player.getUniqueId().toString(), playerExp+giving);
+            SQL.get().updateData(SQL.DataType.PLAYER_STATS, SQL.UpdateType.PLAYER_STATS_TOTAL_EXP, "uuid", player.getUniqueId().toString(), playerTotalExp+giving);
             checkLevelup(player);
             giveExp(player,sobrante);
         }
@@ -46,11 +46,11 @@ public class Level {
     
     public void checkLevelup (Player player) {
         SPlayer sp = PlayerManager.get().getPlayer(player.getUniqueId());
-        Integer playerLevel = (Integer) SQL.get().getPlayer(SQL.DataType.PLAYER_STATS, SQL.UpdateType.PLAYER_STATS_LEVEL, SQL.UpdateType.PLAYER_STATS_UUID, player.getUniqueId().toString());
+        Integer playerLevel = (Integer)SQL.get().getData(SQL.DataType.PLAYER_STATS, SQL.UpdateType.PLAYER_STATS_LEVEL, "uuid", player.getUniqueId().toString());
         if (playerLevel == 60)
             return;
-        SQL.get().updatePlayer(SQL.DataType.PLAYER_STATS, SQL.UpdateType.PLAYER_STATS_LEVEL, playerLevel+1, player.getUniqueId().toString());
-        SQL.get().updatePlayer(SQL.DataType.PLAYER_STATS, SQL.UpdateType.PLAYER_STATS_EXP, 0, player.getUniqueId().toString());
+        SQL.get().updateData(SQL.DataType.PLAYER_STATS, SQL.UpdateType.PLAYER_STATS_LEVEL, "uuid", player.getUniqueId().toString(), playerLevel+1);
+        SQL.get().updateData(SQL.DataType.PLAYER_STATS, SQL.UpdateType.PLAYER_STATS_EXP, "uuid", player.getUniqueId().toString(), 0);
         Tools.get().playSound(player, Sound.ENTITY_PLAYER_LEVELUP, 5.0f, 1.0f);
         sp.updateBossbar();
     }
