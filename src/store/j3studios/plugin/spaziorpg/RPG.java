@@ -19,7 +19,7 @@ public class RPG extends JavaPlugin {
     public void onEnable() {
         ins = this;
         
-        // Loading configuration files
+        // Loading configuration files xd
         getConfig();
         saveDefaultConfig();        
         final Config load = new Config(this, "lang_us");
