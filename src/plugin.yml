@@ -5,3 +5,5 @@ author: Josn3r
 softdepend: [Vault,PlaceholderAPI,WorldGuard]
 loadBefore: [Vault,PlaceholderAPI,WorldGuard]
 api-version: 1.16
+commands:
+  spaziorpg:

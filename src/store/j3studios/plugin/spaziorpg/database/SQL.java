@@ -10,6 +10,7 @@ import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import store.j3studios.plugin.spaziorpg.RPG;
+import store.j3studios.plugin.spaziorpg.utils.Tools;
 
 public class SQL {
 
@@ -37,12 +38,15 @@ public class SQL {
         PLAYER_STATS ("PLAYER_ACCOUNT"),
         PLAYER_JOBS ("PLAYER_JOBS"),
         PLAYER_BANK ("PLAYER_BANK"),
+        PLAYER_GOLDS ("PLAYER_GOLDS"),
         
-        CLAN_STATS ("CLAN_STATS"),
-                
         BANK_BONOS ("BANK_BONOS"),
-        BANK_STATS ("BANK_STATS");
+        BANK_STATS ("BANK_STATS"),
         
+        GOLDS_STATS ("GOLDS_STATS"),
+        GOLDS_MOVEMENTS ("GOLDS_MOVEMENTS"),
+        GOLDS_PRICE_HISTORY ("GOLDS_PRICE_HISTORY");
+                       
         private final String dataType;
         private DataType (String str) { this.dataType = str; }
         public String getDataType() {
@@ -97,12 +101,18 @@ public class SQL {
         Statement st = c.createStatement();
         try {            
             switch (type) {
-                case PLAYER_STATS -> st.executeUpdate("CREATE TABLE IF NOT EXISTS `" + dataType + "` (`uuid` VARCHAR(255), `username` VARCHAR(255), `golds` INT NOT NULL DEFAULT '0', `level` INT NOT NULL DEFAULT '1', `exp` INT NOT NULL DEFAULT '0', `totalExp` INT NOT NULL DEFAULT '0')");
+                case PLAYER_STATS -> st.executeUpdate("CREATE TABLE IF NOT EXISTS `" + dataType + "` (`uuid` VARCHAR(255), `username` VARCHAR(255), `level` INT NOT NULL DEFAULT '1', `exp` INT NOT NULL DEFAULT '0', `totalExp` INT NOT NULL DEFAULT '0')");
                 case PLAYER_JOBS -> st.executeUpdate("CREATE TABLE IF NOT EXISTS `" + dataType + "` (`uuid` VARCHAR(255), `username` VARCHAR(255), `job_1` VARCHAR(255), `job_2` VARCHAR(255), `jobs_level` LONGTEXT, `jobs_exp` LONGTEXT, `jobs_totalExp` LONGTEXT)");
                 case PLAYER_BANK -> st.executeUpdate("CREATE TABLE IF NOT EXISTS `" + dataType + "` (`uuid` VARCHAR(255), `username` VARCHAR(255), `account` VARCHAR(255), `level` INT NOT NULL DEFAULT '1', `balance` DOUBLE NOT NULL DEFAULT '0.0', `transactions` LONGTEXT, `claimedBonos` LONGTEXT)");
+                case PLAYER_GOLDS -> st.executeUpdate("CREATE TABLE IF NOT EXISTS `" + dataType + "` (`uuid` VARCHAR(255), `username` VARCHAR(255), `golds` INT NOT NULL DEFAULT '0')");
                 //
                 case BANK_BONOS -> st.executeUpdate("CREATE TABLE IF NOT EXISTS `" + dataType + "` (`id` INT NOT NULL PRIMARY KEY, `name` VARCHAR(255), `stock` INT, `level` INT, `value` DOUBLE)");
-                case BANK_STATS -> st.executeUpdate("CREATE TABLE IF NOT EXISTS `" + dataType + "` (`accounts` INT NOT NULL DEFAULT '0', `totalMoney` DOUBLE NOT NULL DEFAULT '0.0', `partners` LONGTEXT)");
+                case BANK_STATS -> st.executeUpdate("CREATE TABLE IF NOT EXISTS `" + dataType + "` (`accounts` INT NOT NULL DEFAULT '0', `totalMoney` DOUBLE NOT NULL DEFAULT '0.0', `bankProfits` DOUBLE NOT NULL DEFAULT '0.0', `partners` LONGTEXT)");
+                //
+                case GOLDS_STATS -> st.executeUpdate("CREATE TABLE IF NOT EXISTS `" + dataType + "` (`total_golds` INT NOT NULL DEFAULT '0', `bank_golds` INT NOT NULL DEFAULT '0', `circulating_golds` INT NOT NULL DEFAULT '0', `produced_golds` INT NOT NULL DEFAULT '0', `burned_golds` INT NOT NULL DEFAULT '0', `gold_price` DOUBLE NOT NULL DEFAULT '0.0', `gold_max_price` DOUBLE NOT NULL DEFAULT '0.0', `gold_min_price` DOUBLE NOT NULL DEFAULT '0.0')");
+                case GOLDS_MOVEMENTS -> st.executeUpdate("CREATE TABLE IF NOT EXISTS `" + dataType + "` (`id` INT NOT NULL PRIMARY KEY, `type` VARCHAR(255), `date` VARCHAR(255), `uuid` VARCHAR(255), `amount` INT NOT NULL DEFAULT '0', `gold_price` DOUBLE NOT NULL DEFAULT '0.0')");
+                case GOLDS_PRICE_HISTORY -> st.executeUpdate("CREATE TABLE IF NOT EXISTS `" + dataType + "` (`id` INT NOT NULL PRIMARY KEY, `date` VARCHAR(255), `gold_price` DOUBLE NOT NULL DEFAULT '0.0')");
+                
             }
         } finally {
             try {
@@ -122,7 +132,6 @@ public class SQL {
     public enum UpdateType {
         PLAYER_STATS_UUID ("uuid"),
         PLAYER_STATS_USERNAME ("username"),
-        PLAYER_STATS_GOLDS ("golds"),
         PLAYER_STATS_LEVEL ("level"),
         PLAYER_STATS_EXP ("exp"),
         PLAYER_STATS_TOTAL_EXP ("totalExp"),
@@ -142,12 +151,22 @@ public class SQL {
         PLAYER_BANK_BALANCE ("balance"),
         PLAYER_BANK_TRANSACTIONS ("transactions"),
         PLAYER_BANK_CLAIMED_BONOS ("claimedBonos"),
+            
+        PLAYER_GOLDS_UUID ("uuid"),
+        PLAYER_GOLDS_USERNAME ("username"),
+        PLAYER_GOLDS_GOLDS ("golds"),
         
-        
-        CLAN_STATS ("CLAN_STATS"),
-                
         BANK_BONOS ("BANK_BONOS"),
-        BANK_STATS ("BANK_STATS");
+        BANK_STATS ("BANK_STATS"),
+        
+        GOLD_STATS_TOTAL_GOLDS ("TOTAL_GOLDS"),
+        GOLD_STATS_BANK_GOLDS ("BANK_GOLDS"),
+        GOLD_STATS_CIRCULATING_GOLDS ("CIRCULATING_GOLDS"),
+        GOLD_STATS_PRODUCED_GOLDS ("PRODUCED_GOLDS"),
+        GOLD_STATS_BURNED_GOLDS ("BURNED_GOLDS"),
+        GOLD_STATS_GOLD_PRICE ("GOLD_PRICE"),
+        GOLD_STATS_GOLD_MAX_PRICE ("GOLD_MAX_PRICE"),
+        GOLD_STATS_GOLD_MIN_PRICE ("GOLD_MIN_PRICE");
         
         private final String dataType;
         
@@ -170,13 +189,12 @@ public class SQL {
             if (!rs.next()) {
                 switch (dataType) {
                     case PLAYER_STATS ->                         {
-                            PreparedStatement st2 = SQL.get().getConnection().prepareStatement("INSERT INTO `" + dataType.getDataType() + "` VALUES (?, ?, ?, ?, ?, ?)");
+                            PreparedStatement st2 = SQL.get().getConnection().prepareStatement("INSERT INTO `" + dataType.getDataType() + "` VALUES (?, ?, ?, ?, ?)");
                             st2.setString(1, uuid);
                             st2.setString(2, Bukkit.getOfflinePlayer(UUID.fromString(uuid)).getName());
-                            st2.setInt(3, 0);
-                            st2.setInt(4, 1);
+                            st2.setInt(3, 1);
+                            st2.setInt(4, 0);
                             st2.setInt(5, 0);
-                            st2.setInt(6, 0);
                             st2.executeUpdate();
                             st2.close();
                         }
@@ -196,11 +214,19 @@ public class SQL {
                             PreparedStatement st2 = SQL.get().getConnection().prepareStatement("INSERT INTO `" + dataType.getDataType() + "` VALUES (?, ?, ?, ?, ?, ?, ?)");
                             st2.setString(1, uuid);
                             st2.setString(2, Bukkit.getOfflinePlayer(UUID.fromString(uuid)).getName());
-                            st2.setString(3, "");
+                            st2.setString(3, Tools.get().getNumSerie());
                             st2.setInt(4, 1);
                             st2.setDouble(5, 0.0);
                             st2.setString(6, "");
                             st2.setString(7, "");
+                            st2.executeUpdate();
+                            st2.close();
+                        }
+                    case PLAYER_GOLDS ->                         { 
+                            PreparedStatement st2 = SQL.get().getConnection().prepareStatement("INSERT INTO `" + dataType.getDataType() + "` VALUES (?, ?, ?)");
+                            st2.setString(1, uuid);
+                            st2.setString(2, Bukkit.getOfflinePlayer(UUID.fromString(uuid)).getName());
+                            st2.setInt(3, 0);
                             st2.executeUpdate();
                             st2.close();
                         }
@@ -216,29 +242,27 @@ public class SQL {
     }
     
     public void updateData (DataType dataType, UpdateType updateType, String where, String sql, Object value) {
-        RPG.get().getServer().getScheduler().runTaskAsynchronously(RPG.get(), () -> {
-            try {
-                PreparedStatement st = SQL.get().getConnection().prepareStatement("SELECT * FROM `" + dataType.getDataType() + "` WHERE `" + where + "` = ? LIMIT 1;");
-                st.setString(1, sql);
-                st.executeQuery();
-                ResultSet rs = st.getResultSet();
-                if (!rs.next()) {
-                    if (sql.length()>30) {
-                        createPlayer(dataType, sql);
-                    }
-                } else {
-                    PreparedStatement st2 = SQL.get().getConnection().prepareStatement("UPDATE `" + dataType.getDataType() + "` SET `" + updateType.getUpdateType() + "` = ? WHERE `" + where + "` = ? LIMIT 1;");
-                    st2.setObject(1, value);
-                    st2.setString(2, sql);
-                    st2.executeUpdate();
-                    st2.close();
+        try {
+            PreparedStatement st = SQL.get().getConnection().prepareStatement("SELECT * FROM `" + dataType.getDataType() + "` WHERE `" + where + "` = ? LIMIT 1;");
+            st.setString(1, sql);
+            st.executeQuery();
+            ResultSet rs = st.getResultSet();
+            if (!rs.next()) {
+                if (sql.length()>30) {
+                    createPlayer(dataType, sql);
                 }
-                rs.close();
-                st.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
+            } else {
+                PreparedStatement st2 = SQL.get().getConnection().prepareStatement("UPDATE `" + dataType.getDataType() + "` SET `" + updateType.getUpdateType() + "` = ? WHERE `" + where + "` = ? LIMIT 1;");
+                st2.setObject(1, value);
+                st2.setString(2, sql);
+                st2.executeUpdate();
+                st2.close();
             }
-        });  
+            rs.close();
+            st.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } 
     }
     
     public Object getData (DataType dataType, UpdateType updateType, String where, String sql) {
@@ -249,11 +273,66 @@ public class SQL {
             st.setString(1, sql);
             st.executeQuery();
             ResultSet rs = st.getResultSet();
-            value = rs.getObject(updateType.getUpdateType());
+            if (!rs.next()) {
+                if (sql.length()>30) {
+                    createPlayer(dataType, sql);
+                }
+            } else {
+                value = rs.getObject(updateType.getUpdateType());
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return value;
     }
 
+    /*
+        START GOLDS / UPDATE / GET - GOLDS STATS
+    */
+    
+    public void startGoldStats (Integer startedGolds, Double startedPrice) {
+        try {
+            PreparedStatement st = SQL.get().getConnection().prepareStatement("INSERT INTO `" + DataType.GOLDS_STATS + "` VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+            st.setInt(1, startedGolds);
+            st.setInt(2, startedGolds);
+            st.setInt(3, 0);
+            st.setInt(4, 0);
+            st.setInt(5, 0);
+            st.setDouble(6, startedPrice);
+            st.setDouble(7, startedPrice);
+            st.setDouble(8, startedPrice);
+            st.executeUpdate();
+            st.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    public void updateGoldStats (UpdateType updateType, Object value) {
+        try {
+            PreparedStatement st2 = SQL.get().getConnection().prepareStatement("UPDATE `" + DataType.GOLDS_STATS + "` SET `" + updateType.getUpdateType() + "` = ? LIMIT 1;");
+            st2.setObject(1, value);
+            st2.executeUpdate();
+            st2.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } 
+    }
+    
+    public Object getGoldStats (UpdateType updateType) {
+        Object value = null;
+        try {
+            assert (SQL.get().getConnection() != null);
+            PreparedStatement st = SQL.get().getConnection().prepareStatement("SELECT `" + updateType.getUpdateType() + "` FROM `" + DataType.GOLDS_STATS + "`;");
+            st.executeQuery();
+            ResultSet rs = st.getResultSet();
+            if (rs.next()) {
+                value = rs.getObject(updateType.getUpdateType());
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return value;
+    }
+    
 }

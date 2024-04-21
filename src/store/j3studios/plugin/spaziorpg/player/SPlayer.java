@@ -8,7 +8,6 @@ import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
 import store.j3studios.plugin.spaziorpg.RPG;
 import store.j3studios.plugin.spaziorpg.control.Level;
-import store.j3studios.plugin.spaziorpg.database.SQL;
 import store.j3studios.plugin.spaziorpg.utils.Config;
 import store.j3studios.plugin.spaziorpg.utils.Tools;
 
@@ -16,6 +15,10 @@ public class SPlayer {
     
     private final UUID uuid;
     private final Player player;
+    
+    private Integer level = 1;
+    private Integer exp = 0;
+    private Integer totalExp = 0;
     
     private final BossBar bossBar = Bukkit.createBossBar("", BarColor.YELLOW, BarStyle.SOLID);   
     
@@ -49,21 +52,46 @@ public class SPlayer {
         return lang;
     }    
     
+    /*
+        LEVEL SYSTEM
+    */
+
+    public Integer getLevel() {
+        return level;
+    }
+
+    public void setLevel(Integer level) {
+        this.level = level;
+    }
+
+    public Integer getExp() {
+        return exp;
+    }
+
+    public void setExp(Integer exp) {
+        this.exp = exp;
+    }
+
+    public Integer getTotalExp() {
+        return totalExp;
+    }
+
+    public void setTotalExp(Integer totalExp) {
+        this.totalExp = totalExp;
+    }
+       
     public BossBar getBossbar() {
         return bossBar;
     }
     
     public void createBossbar() {
-        Integer level = (Integer) SQL.get().getData(SQL.DataType.PLAYER_STATS, SQL.UpdateType.PLAYER_STATS_LEVEL, "uuid", uuid.toString());
-        Integer exp = (Integer) SQL.get().getData(SQL.DataType.PLAYER_STATS, SQL.UpdateType.PLAYER_STATS_EXP, "uuid", uuid.toString());
-        Integer needExp = Level.get().getNeededExp(player);
-        
+        Integer needExp = Level.get().getNeededExp(player);        
         bossBar.setColor(BarColor.YELLOW);
         bossBar.setStyle(BarStyle.SOLID);
         bossBar.setTitle(Tools.Text("&fNivel: &e" + level + " &7- &fExp: &e" + exp + "&7/" + needExp));
         bossBar.setVisible(true);
-        bossBar.setProgress(1.0);
-        
+        Double calculo = exp / (double)needExp;        
+        bossBar.setProgress(calculo);        
         bossBar.addPlayer(player);
     }
     
@@ -72,10 +100,10 @@ public class SPlayer {
             createBossbar();
             return;
         }
-        Integer level = (Integer) SQL.get().getData(SQL.DataType.PLAYER_STATS, SQL.UpdateType.PLAYER_STATS_LEVEL, "uuid", uuid.toString());
-        Integer exp = (Integer) SQL.get().getData(SQL.DataType.PLAYER_STATS, SQL.UpdateType.PLAYER_STATS_EXP, "uuid", uuid.toString());
         Integer needExp = Level.get().getNeededExp(player);
-        bossBar.setTitle(Tools.Text("&fNivel: &e" + level + " &7- &fExp: &e" + exp + "&7/" + needExp));        
+        Double calculo = exp / (double)needExp;        
+        bossBar.setTitle(Tools.Text("&fNivel: &e" + level + " &7- &fExp: &e" + exp + "&7/" + needExp));       
+        bossBar.setProgress(calculo);
     }
     
     public void removeBossbar() {

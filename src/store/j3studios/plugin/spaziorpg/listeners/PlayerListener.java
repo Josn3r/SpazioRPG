@@ -6,6 +6,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import store.j3studios.plugin.spaziorpg.database.SQL;
+import store.j3studios.plugin.spaziorpg.database.Stats;
 import store.j3studios.plugin.spaziorpg.player.PlayerManager;
 import store.j3studios.plugin.spaziorpg.player.SPlayer;
 
@@ -18,12 +19,12 @@ public class PlayerListener implements Listener {
             if (type.toString().contains("PLAYER_")) {
                 SQL.get().createPlayer(type, player.getUniqueId().toString());
             }
-        }
-        
+        }        
         if (!PlayerManager.get().isPlayerExists(player.getUniqueId())) {
             PlayerManager.get().createPlayer(player);
         }
         SPlayer sp = PlayerManager.get().getPlayer(player.getUniqueId());
+        Stats.get().loadData(player);
         sp.createBossbar();
     }
     
@@ -35,5 +36,6 @@ public class PlayerListener implements Listener {
         }
         PlayerManager.get().removePlayer(player);
     }
+    
     
 }

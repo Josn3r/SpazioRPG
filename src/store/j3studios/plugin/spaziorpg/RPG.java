@@ -1,19 +1,25 @@
 package store.j3studios.plugin.spaziorpg;
 
+import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
+import store.j3studios.plugin.spaziorpg.cmds.CommandManager;
 import store.j3studios.plugin.spaziorpg.database.SQL;
+import store.j3studios.plugin.spaziorpg.database.Stats;
+import store.j3studios.plugin.spaziorpg.listeners.LevelListener;
 import store.j3studios.plugin.spaziorpg.listeners.PlayerListener;
 import store.j3studios.plugin.spaziorpg.player.PlayerManager;
 import store.j3studios.plugin.spaziorpg.player.SPlayer;
 import store.j3studios.plugin.spaziorpg.utils.Config;
 import store.j3studios.plugin.spaziorpg.utils.Tools;
+import store.j3studios.plugin.spaziorpg.utils.Vault;
 
 public class RPG extends JavaPlugin {
     
     private static RPG ins;
+    public static Economy econ;
     
     @Override
     public void onEnable() {
@@ -32,13 +38,23 @@ public class RPG extends JavaPlugin {
         
         // Loading listeners
         registerEvent(new PlayerListener());
+        registerEvent(new LevelListener());
+        getCommand("spaziorpg").setExecutor(new CommandManager());
         
-        // Loading runnables
+        Vault.setupEconomy();
+        
+        // Loading runnaspaziorpgbles
         for (Player online : Bukkit.getOnlinePlayers()) {
+            for (SQL.DataType type : SQL.DataType.values()) {
+                if (type.toString().contains("PLAYER_")) {
+                    SQL.get().createPlayer(type, online.getUniqueId().toString());
+                }
+            } 
             if (!PlayerManager.get().isPlayerExists(online.getUniqueId())) {
                 PlayerManager.get().createPlayer(online);
-            }
+            }            
             SPlayer sp = PlayerManager.get().getPlayer(online.getUniqueId());
+            Stats.get().loadData(online);
             sp.createBossbar();
         }
     }

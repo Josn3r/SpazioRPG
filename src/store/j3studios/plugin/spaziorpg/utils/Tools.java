@@ -13,6 +13,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
+import store.j3studios.plugin.spaziorpg.database.SQL;
 
 public class Tools {
     
@@ -28,6 +29,8 @@ public class Tools {
     /*
         Colour translate.
     */
+    
+    public static String PREFIX = "&7[&e&lM&6&lS&7] » ";
     
     public static String Text (String str) {
         return ChatColor.translateAlternateColorCodes('&', str);
@@ -90,6 +93,20 @@ public class Tools {
         Messages options
     */
     
+    private final int TAMANO_SERIE = 10; // Longitud del número de serie
+    private final String ALFABETO = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"; // Caracteres para generar el número de serie    
+    public String getNumSerie() {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < TAMANO_SERIE; i++) {
+            int indiceAleatorio = (int) (Math.random() * ALFABETO.length());
+            builder.append(ALFABETO.charAt(indiceAleatorio));
+        }        
+        if (SQL.get().getData(SQL.DataType.PLAYER_BANK, SQL.UpdateType.PLAYER_BANK_ACCOUNT, "account", builder.toString()) != null) {            
+            return getNumSerie();
+        }        
+        return builder.toString();
+    }
+    
     public String compileWords (String[] args, Integer index) {
         StringBuilder builder = new StringBuilder();
         for (int i = index; i < args.length; ++i) {
@@ -149,6 +166,34 @@ public class Tools {
     
     public Double calcPercent (Double value, Double percent) {
         return (value * (100 + (-(100-percent))) / 100);
+    }
+    
+    public boolean isInt(String s) {
+        try {
+            Integer.valueOf(s);
+        } catch (NumberFormatException nfe) {
+            return false;
+        }
+        return true;
+    }
+    
+    public boolean isDouble(String s) {
+        try {
+            Double.valueOf(s);
+        } catch (NumberFormatException nfe) {
+            return false;
+        }
+        return true;
+    }
+    
+    /*
+        OTHERS
+    */
+    
+    public Boolean isBedrock (Player player) {
+        if (player.getName().startsWith("db_"))
+            return true;
+        return false;
     }
     
 }
