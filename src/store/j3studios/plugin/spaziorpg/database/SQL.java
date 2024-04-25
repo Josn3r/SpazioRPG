@@ -6,6 +6,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -106,12 +107,12 @@ public class SQL {
                 case PLAYER_BANK -> st.executeUpdate("CREATE TABLE IF NOT EXISTS `" + dataType + "` (`uuid` VARCHAR(255), `username` VARCHAR(255), `account` VARCHAR(255), `level` INT NOT NULL DEFAULT '1', `balance` DOUBLE NOT NULL DEFAULT '0.0', `transactions` LONGTEXT, `claimedBonos` LONGTEXT)");
                 case PLAYER_GOLDS -> st.executeUpdate("CREATE TABLE IF NOT EXISTS `" + dataType + "` (`uuid` VARCHAR(255), `username` VARCHAR(255), `golds` INT NOT NULL DEFAULT '0')");
                 //
-                case BANK_BONOS -> st.executeUpdate("CREATE TABLE IF NOT EXISTS `" + dataType + "` (`id` INT NOT NULL PRIMARY KEY, `name` VARCHAR(255), `stock` INT, `level` INT, `value` DOUBLE)");
+                case BANK_BONOS -> st.executeUpdate("CREATE TABLE IF NOT EXISTS `" + dataType + "` (`id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY, `name` VARCHAR(255), `stock` INT, `level` INT, `value` DOUBLE)");
                 case BANK_STATS -> st.executeUpdate("CREATE TABLE IF NOT EXISTS `" + dataType + "` (`accounts` INT NOT NULL DEFAULT '0', `totalMoney` DOUBLE NOT NULL DEFAULT '0.0', `bankProfits` DOUBLE NOT NULL DEFAULT '0.0', `partners` LONGTEXT)");
                 //
                 case GOLDS_STATS -> st.executeUpdate("CREATE TABLE IF NOT EXISTS `" + dataType + "` (`total_golds` INT NOT NULL DEFAULT '0', `bank_golds` INT NOT NULL DEFAULT '0', `circulating_golds` INT NOT NULL DEFAULT '0', `produced_golds` INT NOT NULL DEFAULT '0', `burned_golds` INT NOT NULL DEFAULT '0', `gold_price` DOUBLE NOT NULL DEFAULT '0.0', `gold_max_price` DOUBLE NOT NULL DEFAULT '0.0', `gold_min_price` DOUBLE NOT NULL DEFAULT '0.0')");
-                case GOLDS_MOVEMENTS -> st.executeUpdate("CREATE TABLE IF NOT EXISTS `" + dataType + "` (`id` INT NOT NULL PRIMARY KEY, `type` VARCHAR(255), `date` VARCHAR(255), `uuid` VARCHAR(255), `amount` INT NOT NULL DEFAULT '0', `gold_price` DOUBLE NOT NULL DEFAULT '0.0')");
-                case GOLDS_PRICE_HISTORY -> st.executeUpdate("CREATE TABLE IF NOT EXISTS `" + dataType + "` (`id` INT NOT NULL PRIMARY KEY, `date` VARCHAR(255), `gold_price` DOUBLE NOT NULL DEFAULT '0.0')");
+                case GOLDS_MOVEMENTS -> st.executeUpdate("CREATE TABLE IF NOT EXISTS `" + dataType + "` (`id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY, `type` VARCHAR(255), `date` VARCHAR(255), `uuid` VARCHAR(255), `amount` INT NOT NULL DEFAULT '0', `gold_price` DOUBLE NOT NULL DEFAULT '0.0')");
+                case GOLDS_PRICE_HISTORY -> st.executeUpdate("CREATE TABLE IF NOT EXISTS `" + dataType + "` (`id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY, `fecha` VARCHAR(255), `hora` VARCHAR(255), `gold_price` DOUBLE NOT NULL DEFAULT '0.0', `last_gold_price` DOUBLE NOT NULL DEFAULT '0.0', `diff_price` DOUBLE NOT NULL DEFAULT '0.0', `diff_percent` DOUBLE NOT NULL DEFAULT '0.0')");
                 
             }
         } finally {
@@ -333,6 +334,37 @@ public class SQL {
             e.printStackTrace();
         }
         return value;
+    }
+    
+    public void saveGoldHistory (String fecha, String hora, Double price, Double last_price, Double diff_price, Double diff_percent) {
+        try {
+            PreparedStatement st = SQL.get().getConnection().prepareStatement("INSERT INTO `" + DataType.GOLDS_PRICE_HISTORY + "` (`fecha`, `hora`, `gold_price`, `last_gold_price`, `diff_price`, `diff_percent`) VALUES ('"+fecha+"', '"+hora+"', "+price+", '"+last_price+"', '"+diff_price+"', '"+diff_percent+"');");
+            st.executeUpdate();
+            st.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    public ArrayList<String> getGoldHistory(Integer limit) {
+        ArrayList<String> list = new ArrayList<>();
+        try {
+            assert (SQL.get().getConnection() != null);
+            PreparedStatement st = SQL.get().getConnection().prepareStatement("SELECT * FROM `" + DataType.GOLDS_PRICE_HISTORY + "` ORDER BY id DESC LIMIT "+limit+";");            
+            ResultSet rs = st.executeQuery();
+            while (rs.next()) {
+                String fecha = rs.getString("fecha");
+                String hora = rs.getString("hora");
+                Double price = rs.getDouble("gold_price");
+                Double last_price = rs.getDouble("last_gold_price");
+                Double diff_price = rs.getDouble("diff_price");
+                Double diff_percent = rs.getDouble("diff_percent");
+                list.add(fecha + " / " + hora + " / " + price + " / " + last_price + " / " + diff_price + " / " + diff_percent);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
     }
     
 }

@@ -2,7 +2,7 @@ package store.j3studios.plugin.spaziorpg.cmds.subcmds;
 
 import org.bukkit.entity.Player;
 import store.j3studios.plugin.spaziorpg.cmds.SubCommands;
-import store.j3studios.plugin.spaziorpg.database.SQL;
+import store.j3studios.plugin.spaziorpg.control.Banco;
 import store.j3studios.plugin.spaziorpg.menu.bank.BankMainMenu;
 import store.j3studios.plugin.spaziorpg.utils.Tools;
 
@@ -39,7 +39,11 @@ public class BankCMD extends SubCommands {
                 return;
             }
             if (args[1].equalsIgnoreCase("admin")) {
-                SQL.get().createPlayer(SQL.DataType.PLAYER_BANK, "ee01ac53-ec00-485e-947c-acd6326b26ad");
+                if (Banco.get().getPaydayLog().containsKey(player)) {
+                    Banco.get().getPaydayLog().remove(player);
+                } else {
+                    Banco.get().getPaydayLog().put(player, 10000.0);
+                }
             }
         }
     }

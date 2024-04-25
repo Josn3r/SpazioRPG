@@ -24,7 +24,7 @@ public class BankAccountMenu extends Menu {
     public ArrayList<String> history = new ArrayList<>();
     
     public BankAccountMenu(Player player) {
-        super("Banco - Cuenta", 4);
+        super("Banco - Cuenta", 6);
               
         loadHistory(player);
         

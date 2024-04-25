@@ -1,6 +1,7 @@
 package store.j3studios.plugin.spaziorpg.cmds.subcmds;
 
 import org.bukkit.entity.Player;
+import store.j3studios.plugin.spaziorpg.RPG;
 import store.j3studios.plugin.spaziorpg.cmds.SubCommands;
 import store.j3studios.plugin.spaziorpg.database.SQL;
 import store.j3studios.plugin.spaziorpg.menu.bank.BankMainMenu;

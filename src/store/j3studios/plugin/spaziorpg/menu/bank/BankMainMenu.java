@@ -4,14 +4,14 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import store.j3studios.plugin.spaziorpg.database.SQL;
-import store.j3studios.plugin.spaziorpg.menu.Menu;
+import store.j3studios.plugin.spaziorpg.menu.MenuIA;
 import store.j3studios.plugin.spaziorpg.utils.ItemBuilder;
 import store.j3studios.plugin.spaziorpg.utils.Tools;
 
-public class BankMainMenu extends Menu {
+public class BankMainMenu extends MenuIA {
 
     public BankMainMenu(Player player) {
-        super("Banco - Menu principal", 3);
+        super(" ", 6, "spaziorpg:bank_spazio_main_menu");
                 
         String account = SQL.get().getData(SQL.DataType.PLAYER_BANK, SQL.UpdateType.PLAYER_BANK_ACCOUNT, "uuid", player.getUniqueId().toString()).toString();
         Double balance = (double)SQL.get().getData(SQL.DataType.PLAYER_BANK, SQL.UpdateType.PLAYER_BANK_BALANCE, "uuid", player.getUniqueId().toString());
@@ -20,7 +20,7 @@ public class BankMainMenu extends Menu {
         Double precioOro = (double)SQL.get().getGoldStats(SQL.UpdateType.GOLD_STATS_GOLD_PRICE);
         Integer goldBank = (int)SQL.get().getGoldStats(SQL.UpdateType.GOLD_STATS_BANK_GOLDS);
         
-        set(11, ItemBuilder.crearItem(Material.BOOK, 1, "&eCuenta", 
+        set(29, ItemBuilder.crearItem(Material.BOOK, 1, "&eCuenta", 
                 "&7Información bancaria.",
                 "",
                 "&e» Estado:",
@@ -37,7 +37,7 @@ public class BankMainMenu extends Menu {
                 "",
                 "&a» Click para abrir el menu."));
         
-        set(13, ItemBuilder.crearItem(Material.GOLD_INGOT, 1, "&eOro", 
+        set(31, ItemBuilder.crearItem(Material.GOLD_INGOT, 1, "&eOro", 
                 "&7Compra/Vende ORO",
                 "&7Una moneda con vida propia!",
                 "",
@@ -55,7 +55,7 @@ public class BankMainMenu extends Menu {
                 "",
                 "&a» Click para abrir el menu."));
         
-        set(15, ItemBuilder.crearItem(Material.PAPER, 1, "&eAcciones", 
+        set(33, ItemBuilder.crearItem(Material.PAPER, 1, "&eAcciones", 
                 "&7Únete al equipo de socios del banco",
                 "&7y obten ingresos de comisiones!",
                 "",

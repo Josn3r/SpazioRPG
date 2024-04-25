@@ -228,7 +228,7 @@ public class Banco {
         goldPlayer += unidades;
         
         for (int i = 0; i<unidades; ++i) {
-            precioOro += new Random().nextDouble(2.25, 4.0);
+            precioOro += new Random().nextDouble(2.25, 3.35);
         }
         if (precioOro > picoMaximo) {
             picoMaximo = precioOro;
@@ -258,7 +258,7 @@ public class Banco {
         goldPlayer -= unidades;
         goldBank += unidades;
         for (int i = 0; i<unidades; ++i) {
-            precioOro -= new Random().nextDouble(1.50, 3.0);
+            precioOro -= new Random().nextDouble(1.75, 2.65);
         }
         if (precioOro > picoMaximo) {
             picoMaximo = precioOro;
@@ -319,7 +319,7 @@ public class Banco {
         circulatingGold -= unidades;
         totalQuemas += unidades;
         for (int i = 0; i<unidades; ++i) {
-            precioOro += new Random().nextDouble(2.0, 3.25);
+            precioOro += new Random().nextDouble(2.75, 4.65);
         }
         if (precioOro > picoMaximo) {
             picoMaximo = precioOro;
@@ -334,6 +334,10 @@ public class Banco {
         SQL.get().updateGoldStats(SQL.UpdateType.GOLD_STATS_BURNED_GOLDS, totalQuemas);
         SQL.get().updateGoldStats(SQL.UpdateType.GOLD_STATS_CIRCULATING_GOLDS, circulatingGold);
         SQL.get().updateData(SQL.DataType.PLAYER_GOLDS, SQL.UpdateType.PLAYER_GOLDS_GOLDS, "uuid", uuid, goldPlayer);
+    }
+    
+    public void registerHistoryPrice() {
+        
     }
     
 }

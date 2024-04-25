@@ -1,10 +1,14 @@
 package store.j3studios.plugin.spaziorpg.listeners;
 
+import dev.lone.itemsadder.api.ItemsAdder;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerResourcePackStatusEvent;
+import org.bukkit.event.player.PlayerResourcePackStatusEvent.Status;
+import store.j3studios.plugin.spaziorpg.RPG;
 import store.j3studios.plugin.spaziorpg.database.SQL;
 import store.j3studios.plugin.spaziorpg.database.Stats;
 import store.j3studios.plugin.spaziorpg.player.PlayerManager;
@@ -37,5 +41,12 @@ public class PlayerListener implements Listener {
         PlayerManager.get().removePlayer(player);
     }
     
+    @EventHandler
+    public void playerResourcePack(PlayerResourcePackStatusEvent e){
+        if(e.getStatus() == Status.SUCCESSFULLY_LOADED){
+            SPlayer sp = PlayerManager.get().getPlayer(e.getPlayer().getUniqueId());
+            
+        }
+    }
     
 }

@@ -31,7 +31,7 @@ public class SPlayer {
         this.uuid = uuid;
         this.player = Bukkit.getPlayer(uuid);
     }
-
+    
     public Player getPlayer() {
         return player;
     }

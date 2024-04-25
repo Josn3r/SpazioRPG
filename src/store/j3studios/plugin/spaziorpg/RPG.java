@@ -8,10 +8,12 @@ import org.bukkit.plugin.java.JavaPlugin;
 import store.j3studios.plugin.spaziorpg.cmds.CommandManager;
 import store.j3studios.plugin.spaziorpg.database.SQL;
 import store.j3studios.plugin.spaziorpg.database.Stats;
+import store.j3studios.plugin.spaziorpg.hook.PAPIHook;
 import store.j3studios.plugin.spaziorpg.listeners.LevelListener;
 import store.j3studios.plugin.spaziorpg.listeners.PlayerListener;
 import store.j3studios.plugin.spaziorpg.player.PlayerManager;
 import store.j3studios.plugin.spaziorpg.player.SPlayer;
+import store.j3studios.plugin.spaziorpg.task.BankRunnable;
 import store.j3studios.plugin.spaziorpg.utils.Config;
 import store.j3studios.plugin.spaziorpg.utils.Tools;
 import store.j3studios.plugin.spaziorpg.utils.Vault;
@@ -20,7 +22,7 @@ public class RPG extends JavaPlugin {
     
     private static RPG ins;
     public static Economy econ;
-    
+        
     @Override
     public void onEnable() {
         ins = this;
@@ -28,7 +30,7 @@ public class RPG extends JavaPlugin {
         // Loading configuration files xd
         getConfig();
         saveDefaultConfig();        
-        final Config load = new Config(this, "lang_us");
+        new Config(this, "lang_us");
         
         // Loading SQL
         SQL.get().openConnection();
@@ -41,7 +43,12 @@ public class RPG extends JavaPlugin {
         registerEvent(new LevelListener());
         getCommand("spaziorpg").setExecutor(new CommandManager());
         
+        new BankRunnable(this).loadRunnable();
+        
         Vault.setupEconomy();
+        if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
+            new PAPIHook(this).register();
+        }
         
         // Loading runnaspaziorpgbles
         for (Player online : Bukkit.getOnlinePlayers()) {
@@ -81,6 +88,5 @@ public class RPG extends JavaPlugin {
         String listenerName = listener.getClass().getName().replace("store.j3studios.plugin.spaziorpg.listeners.", "");
         Tools.debug(Tools.DebugType.SUCCESS, "&fRegistering &e" + listenerName + " &flistener success.");
     }
-    
-    
+            
 }
